@@ -8,8 +8,7 @@ possibleStates={
     "Safe":0,
     "Number":1
 }
-#just to see
-a=3
+
 cellHidden=True
 
 class Board:
