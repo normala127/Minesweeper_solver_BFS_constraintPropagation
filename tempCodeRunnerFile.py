@@ -1,1 +1,1 @@
-case
+self.grid[new_row,new_col]!=-1 and 
