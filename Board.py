@@ -1,22 +1,24 @@
 import numpy as np
 from Cell import *
+from Settings import *
 
 class Board:
-    def __init__(self, dimension = (9, 9)):
-        self.rows = dimension[0]
-        self.columns = dimension[1]
-        self.cell = Cell(0)
+    def __init__(self):
+        self.board_surface = pygame.Surface((WIDTH, HEIGHT))
+
         self.numnber_of_mines = 10
         self.create_grid()
 
     def create_user_grid(self):
         self.user_grid = np.array(
-            [[self.cell.cell_visability] * 9 for i in range(self.rows)]
+            [[self.cell.cell_visability] * HEIGHT for i in range(ROWS)]
         )
+        self.grid = [[Cell(col, row, 0, tile_unknown) for row in range(ROWS)] for col in range(COLS)]
         self.show_grid(self.user_grid)
 
     def create_grid(self):
-        self.grid = np.array([[self.cell.cell_state] * 9 for i in range(self.rows)])
+        self.grid = np.array([[self.cell.cell_state] * HEIGHT for i in range(ROWS)])
+        self.grid = [[Cell(col, row, 0, tile_empty) for row in range(ROWS)] for col in range(COLS)]
 
     def set_mines(self, firstChosen): #vjerovatno moze krace omg
         mines_set = 0
@@ -27,10 +29,11 @@ class Board:
                 # random_column = 0 #for testing
                 # random_row = 8
                 if (
-                    self.grid[random_row, random_column] != -1
+                    self.grid[random_row][ random_column] != -1
                     and (random_row, random_column) != firstChosen
                 ):
-                    self.grid[random_row, random_column] = -1
+                    self.grid[random_row][random_column] = -1
+                    self.grid[random_row][random_column].image = tile_mine
                     # print("Row " ,randomRow, "Column " , randomColumn)
                     break
 
@@ -58,7 +61,8 @@ class Board:
                 
                 for m in range(2 - l):
                     if self.grid[i, j] != -1 and i < 9:
-                        self.grid[i, j] += 1
+                        self.grid[i, j].cell_state += 1
+                        self.grid[i][j].image(self.grid[i][j].cell_state)
                         # print("dodaN BROJ")
                     if j == self.columns - 1:
                         break
