@@ -1,109 +1,10 @@
 import numpy as np
-
-class Queue:
-    def __init__(self):
-        self.queue=[]
-    def enqueue(self, item):
-        self.queue.append(item)
-    def dequeue(self):
-        if self.isEmpty():
-            return
-        else:
-            self.queue.pop(0)
-    def peek(self):
-        return self.queue[0]
-    def peekEnd(self):
-        return self.queue[-1]
-    def isEmpty(self):
-        return len(self.queue)==0
-    def size(self):
-        return len(self.queue)
-
-class Cell:
-    def __init__(self, state, visability="N"):
-        self.cell_state = state
-        self.cell_visability = visability
-
-#possible_states = {"Mine": -1, "Safe": 0, "Number": 1, "Not shown": 'N',}
-#cell_hidden = 'N'
-
-class Board:
-    def __init__(self, dimension = (9, 9)):
-        self.rows = dimension[0]
-        self.columns = dimension[1]
-        self.cell = Cell(0)
-        self.numnber_of_mines = 10
-        self.create_grid()
-
-    def create_user_grid(self):
-        self.user_grid = np.array(
-            [[self.cell.cell_visability] * 9 for i in range(self.rows)]
-        )
-        self.show_grid(self.user_grid)
-
-    def create_grid(self):
-        self.grid = np.array([[self.cell.cell_state] * 9 for i in range(self.rows)])
-
-    def set_mines(self, firstChosen): #vjerovatno moze krace omg
-        mines_set = 0
-        while mines_set < self.numnber_of_mines:
-            while True:
-                random_column = np.random.randint(0, 9)
-                random_row = np.random.randint(0, 9)
-                # random_column = 0 #for testing
-                # random_row = 8
-                if (
-                    self.grid[random_row, random_column] != -1
-                    and (random_row, random_column) != firstChosen
-                ):
-                    self.grid[random_row, random_column] = -1
-                    # print("Row " ,randomRow, "Column " , randomColumn)
-                    break
-
-
-            # adjusting the hints
-            if random_row != 0:
-                i = random_row - 1
-                # print("Izabrana je opcija 1")
-                r = -1
-            else:
-                i = random_row
-                # print("Izabrana je opcija 2")
-                r = 0
-
-            if random_column != 0:
-                j = random_column - 1
-                # print("Izabrana je opcija 3")
-                l = -1
-            else:
-                j = random_column
-                # print("Izabrana je opcija 4")
-                l = 0
-
-            for k in range(2 - r):
-                
-                for m in range(2 - l):
-                    if self.grid[i, j] != -1 and i < 9:
-                        self.grid[i, j] += 1
-                        # print("dodaN BROJ")
-                    if j == self.columns - 1:
-                        break
-                    j += 1
-                j = random_column + l
-                # print("------------------------")
-                # self.showGrid()
-                # print("------------------------")
-                if i == self.rows - 1:
-                    break
-                i += 1
-            mines_set += 1
-            # break
-
-    def show_grid(self, grid):
-        for row in grid:
-            print(row)
-
-
+from Queue import *
+from Cell import *
+from Board import *
+#TODO learn to create packages
+#TODO make code simpler/shorter
+#TODO use 4 principles of OOP
 class Solver(Board):
     def start_game(self):
         self.create_user_grid()
@@ -181,8 +82,6 @@ class Solver(Board):
             self.show_grid(self.user_grid)
             print("--------------------------------")'''
 
-# b=Board()
-# b.show_grid(b.grid)
 
 user = Solver()
 user.start_game()

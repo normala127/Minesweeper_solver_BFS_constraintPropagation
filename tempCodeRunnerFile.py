@@ -1,1 +1,1 @@
-self.grid[new_row,new_col]!=-1 and 
+        self.clock = pygame.time.Clock()
