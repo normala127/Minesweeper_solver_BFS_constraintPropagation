@@ -1,6 +1,8 @@
 import numpy as np
 from Cell import *
 from Settings import *
+import pygame
+
 
 class Board:
     def __init__(self):
@@ -10,73 +12,69 @@ class Board:
         self.create_grid()
 
     def create_user_grid(self):
-        self.user_grid = np.array(
-            [[self.cell.cell_visability] * HEIGHT for i in range(ROWS)]
-        )
-        self.grid = [[Cell(col, row, 0, tile_unknown) for row in range(ROWS)] for col in range(COLS)]
+        self.user_grid = [[Cell(col, row, 'N', tile_unknown) for row in range(ROWS)] for col in range(COLS)]
         self.show_grid(self.user_grid)
 
     def create_grid(self):
-        self.grid = np.array([[self.cell.cell_state] * HEIGHT for i in range(ROWS)])
         self.grid = [[Cell(col, row, 0, tile_empty) for row in range(ROWS)] for col in range(COLS)]
 
-    def set_mines(self, firstChosen): #vjerovatno moze krace omg
+    def set_mines(self, firstChosen): 
         mines_set = 0
         while mines_set < self.numnber_of_mines:
             while True:
                 random_column = np.random.randint(0, 9)
                 random_row = np.random.randint(0, 9)
-                # random_column = 0 #for testing
-                # random_row = 8
                 if (
-                    self.grid[random_row][ random_column] != -1
+                    self.grid[random_row][ random_column].cell_state != -1
                     and (random_row, random_column) != firstChosen
                 ):
-                    self.grid[random_row][random_column] = -1
+                    self.grid[random_row][random_column].cell_state = -1
                     self.grid[random_row][random_column].image = tile_mine
-                    # print("Row " ,randomRow, "Column " , randomColumn)
                     break
 
 
             # adjusting the hints
             if random_row != 0:
                 i = random_row - 1
-                # print("Izabrana je opcija 1")
                 r = -1
             else:
                 i = random_row
-                # print("Izabrana je opcija 2")
                 r = 0
 
             if random_column != 0:
                 j = random_column - 1
-                # print("Izabrana je opcija 3")
                 l = -1
             else:
                 j = random_column
-                # print("Izabrana je opcija 4")
                 l = 0
 
             for k in range(2 - r):
                 
                 for m in range(2 - l):
-                    if self.grid[i, j] != -1 and i < 9:
-                        self.grid[i, j].cell_state += 1
-                        self.grid[i][j].image(self.grid[i][j].cell_state)
-                        # print("dodaN BROJ")
-                    if j == self.columns - 1:
+                    if self.grid[i][j].cell_state != -1 and i < 9:
+                        self.grid[i][j].cell_state += 1
+                        a=self.grid[i][j].cell_state
+                        self.grid[i][j].image=tile_numbers[a]
+                    if j == ROWS - 1:
                         break
                     j += 1
                 j = random_column + l
-                # print("------------------------")
-                # self.showGrid()
-                # print("------------------------")
-                if i == self.rows - 1:
+                if i == COLS - 1:
                     break
                 i += 1
             mines_set += 1
-            # break
+
+    def show_grid2(self, grid):
+        for row in grid:
+            print(row)
+
+    def draw(self, screen):
+        for row in self.user_grid:
+            for cell in row:
+                cell.draw(self.board_surface)
+        screen.blit(self.board_surface,(0,0))
 
     def show_grid(self, grid):
         for row in grid:
-            print(row)
+            temp=[col.cell_state for col in row]
+            print(temp)

@@ -3,15 +3,13 @@ from Queue import *
 from Cell import *
 from Board import *
 #TODO learn to create packages
-#TODO make code simpler/shorter
-#TODO use 4 principles of OOP
+
 class Solver(Board):
     def start_game(self):
         self.create_user_grid()
         self.first_selected_cell_row = np.random.randint(0, 8)
         self.first_selected_cell_column = np.random.randint(0, 8)
-        #self.first_selected_cell_column = 0 #for testing
-        #self.first_selected_cell_row = 0
+
         print(
             "Comp chose :",
             self.first_selected_cell_row,
@@ -25,19 +23,24 @@ class Solver(Board):
         print("ZA TACAN GRID SHOWGRID")
         self.show_grid(self.grid)
 
-        if self.grid[self.first_selected_cell_row, self.first_selected_cell_column] > 0:
-            self.user_grid[self.first_selected_cell_row, self.first_selected_cell_column] = self.grid[self.first_selected_cell_row, self.first_selected_cell_column]
-        if self.grid[self.first_selected_cell_row, self.first_selected_cell_column] == 0:
+        if self.grid[self.first_selected_cell_row][ self.first_selected_cell_column].cell_state > 0:
+            self.user_grid[self.first_selected_cell_row][ self.first_selected_cell_column].cell_state = self.grid[self.first_selected_cell_row][self.first_selected_cell_column].cell_state
+            self.user_grid[self.first_selected_cell_row][ self.first_selected_cell_column].image = self.grid[self.first_selected_cell_row][self.first_selected_cell_column].image
+            self.user_grid[self.first_selected_cell_row][ self.first_selected_cell_column].cell_visability = True
+            self.show_grid(self.user_grid)    
+            print("---------------------------") 
+        if self.grid[self.first_selected_cell_row][ self.first_selected_cell_column].cell_state == 0:
             self.reveal_safe_cells((self.first_selected_cell_row, self.first_selected_cell_column ))
 
     def reveal_safe_cells(self, chosen):
-        chosen_row, chosen_column = chosen
+        #self.chosen_row, self.chosen_column = chosen
 
         queue = Queue()
-        queue.enqueue([chosen_row,chosen_column])
+        queue.enqueue([self.first_selected_cell_row,self.first_selected_cell_column])
 
-        self.user_grid[chosen_row, chosen_column] = self.grid[chosen_row, chosen_column]
-        self.check_for_numbers_in_reveal(chosen_row, chosen_column) 
+        self.user_grid[self.first_selected_cell_row][self.first_selected_cell_column].image = self.grid[self.first_selected_cell_row][self.first_selected_cell_column].image #TODO ne vidi se 
+        self.user_grid[self.first_selected_cell_row][self.first_selected_cell_column].cell_state = self.grid[self.first_selected_cell_row][self.first_selected_cell_column].cell_state
+        self.check_for_numbers_in_reveal(self.first_selected_cell_row, self.first_selected_cell_column) 
         
         # find other safe cells
         dx = [0, 1, 0, -1]
@@ -53,13 +56,11 @@ class Solver(Board):
 
         
                 if (new_row >= 0 and new_row <= 8 and new_col >= 0 and new_col <=8):
-                    if (self.grid[new_row,new_col] == 0 and self.user_grid[new_row, new_col] == 'N'):
-                        self.user_grid[new_row, new_col] = self.grid[new_row,new_col]
+                    if (self.grid[new_row][new_col].cell_state == 0 and self.user_grid[new_row][new_col].cell_visability == False):
+                        self.user_grid[new_row][new_col].cell_state = self.grid[new_row][new_col].cell_state
+                        self.user_grid[new_row][new_col].image = self.grid[new_row][new_col].image
+                        self.user_grid[new_row][new_col].cell_visability=True
                         queue.enqueue([new_row, new_col])
-                        #print("element u q ", queue.peek())
-                        '''print("----------ZA QUEUE SHOW GRID--------------")
-                        self.show_grid(self.user_grid)
-                        print("------------------------------------------")'''
 
                         self.check_for_numbers_in_reveal(new_row, new_col) 
         print("---------------------------")
@@ -67,21 +68,22 @@ class Solver(Board):
         print("---------------------------")                    
 
     def check_for_numbers_in_reveal(self, new_row, new_col):
-        if (new_row - 1 > - 1 and self.grid[new_row - 1,new_col] > 0):
-            self.user_grid[new_row-1, new_col] = self.grid[new_row - 1,new_col]
+        if (new_row - 1 >= 0 and self.grid[new_row-1][new_col].cell_state > 0):
+            self.user_grid[new_row-1][new_col].cell_state = self.grid[new_row - 1][new_col].cell_state
+            self.user_grid[new_row-1][new_col].image = self.grid[new_row - 1][new_col].image
+            self.user_grid[new_row-1][new_col].cell_visability = True
                      
-        if (new_row + 1 < 9 and self.grid[new_row + 1,new_col] > 0):
-            self.user_grid[new_row + 1, new_col] = self.grid[new_row + 1,new_col]
+        if (new_row + 1 < 9 and self.grid[new_row + 1][new_col].cell_state > 0):
+            self.user_grid[new_row + 1][ new_col].cell_state = self.grid[new_row + 1][new_col].cell_state
+            self.user_grid[new_row + 1][ new_col].image = self.grid[new_row + 1][new_col].image
+            self.user_grid[new_row + 1][ new_col].cell_visability = True
                          
-        if (new_col-1>-1 and self.grid[new_row,new_col-1]>0):
-            self.user_grid[new_row, new_col - 1] = self.grid[new_row,new_col - 1]
+        if (new_col-1>-1 and self.grid[new_row][new_col-1].cell_state > 0):
+            self.user_grid[new_row][ new_col - 1].cell_state = self.grid[new_row][new_col - 1].cell_state
+            self.user_grid[new_row][ new_col - 1].image = self.grid[new_row][new_col - 1].image
+            self.user_grid[new_row][ new_col - 1].cell_visability = True
                          
-        if (new_col + 1 < 9 and self.grid[new_row, new_col + 1] > 0):
-            self.user_grid[new_row, new_col + 1] = self.grid[new_row,new_col + 1]  
-            '''print("----------ZA COL+1--------------")
-            self.show_grid(self.user_grid)
-            print("--------------------------------")'''
-
-
-user = Solver()
-user.start_game()
+        if (new_col + 1 < 9 and self.grid[new_row][ new_col + 1].cell_state > 0):
+            self.user_grid[new_row][ new_col + 1].cell_state = self.grid[new_row][new_col + 1].cell_state
+            self.user_grid[new_row][ new_col + 1].image = self.grid[new_row][new_col + 1].image
+            self.user_grid[new_row][ new_col + 1].cell_visability = True  

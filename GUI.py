@@ -1,15 +1,17 @@
 import pygame
 from Settings import *
-
+from Board import *
+from Solver import *
 
 class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption(TITLE)
         self.clock = pygame.time.Clock()
-    
+
     def new(self):
-        pass
+        self.board = Solver()
+        self.board.start_game()
 
     def run(self):
         self.playing = True
@@ -17,19 +19,39 @@ class Game:
             self.clock.tick(FPS)
             self.events()
             self.draw()
+        else:
+            self.end_screen()
 
     def events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()   
-                quit(0)     
-
+                pygame.quit()
+                quit(0)
 
     def draw(self):
         self.screen.fill(BGCOLOR)
+        self.board.draw(self.screen)
         pygame.display.flip()
+
+    def end_screen(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit(0)
+
 
 game = Game()
 while True:
     game.new()
     game.run()
+
+#TODO  na pritisak tastera da ide sljedeci korak
+
+#TODO pogledati videe o constraint propagation
+
+#TODO vidi je li se to spaja sa dfs bfs
+
+#TODO ako je constraint da se svi manuelno moraju slucajevi istrazit, nadi na internetu all cases i napisi kao fuknciju redom sve
+
+#TODO ako mora pogoditi neka bude random choice

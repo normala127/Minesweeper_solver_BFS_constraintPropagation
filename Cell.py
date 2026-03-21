@@ -10,7 +10,12 @@ class Cell:
         self.flagged = flagged
     
     def draw(self, board_surface):
-        pass
+        if not self.flagged and self.cell_visability:
+            board_surface.blit(self.image, (self.x, self.y))
+        elif self.flagged and not self.cell_visability:
+            board_surface.blit(tile_flag, (self.x, self.y))
+        elif not self.cell_visability:
+            board_surface.blit(tile_unknown, (self.x, self.y))
 
 #possible_states = {"Mine": -1, "Safe": 0, "Number": 1, "Not shown": 'N',}
 #cell_hidden = 'N'
