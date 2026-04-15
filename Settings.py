@@ -14,7 +14,7 @@ YELLOW = (255, 255, 0)
 BGCOLOR = DARKGRAY
 
 # game settings
-TILESIZE = 32
+TILESIZE = 52
 ROWS = 9
 COLS = 9  # TODO use these instead of the other option in Board
 AMOUNT_MINES = 10

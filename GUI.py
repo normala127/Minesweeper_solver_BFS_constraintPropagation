@@ -3,6 +3,7 @@ from Settings import *
 from Board import *
 from Solver import *
 
+
 class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -12,6 +13,8 @@ class Game:
     def new(self):
         self.board = Solver()
         self.board.start_game()
+        self.board.solve(self.screen)
+        #self.board.constraint_propagation(screen=self.screen)
 
     def run(self):
         self.playing = True
@@ -46,12 +49,5 @@ while True:
     game.new()
     game.run()
 
-#TODO  na pritisak tastera da ide sljedeci korak
-
-#TODO pogledati videe o constraint propagation
-
-#TODO vidi je li se to spaja sa dfs bfs
-
-#TODO ako je constraint da se svi manuelno moraju slucajevi istrazit, nadi na internetu all cases i napisi kao fuknciju redom sve
-
-#TODO ako mora pogoditi neka bude random choice
+# TODO da nekako ispise ako je win ili lose
+# TODO code cleanup as i write the report
