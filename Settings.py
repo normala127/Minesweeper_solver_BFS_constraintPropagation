@@ -22,7 +22,7 @@ WIDTH = TILESIZE * ROWS
 HEIGHT = TILESIZE * COLS
 FPS = 60
 TITLE = "Minesweeper solver"
-SPEED = 600
+SPEED = 300
 
 tile_numbers = []
 for i in range(1, 9):
