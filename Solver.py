@@ -6,46 +6,26 @@ import pygame
 #TODO learn to create packages
 
 class Solver(Board):
-    def start_game(self):
+    # used for checking the cells around the selected cell
+    dx = [-1, -1, -1, 0, 0, 1, 1, 1] 
+    dy = [-1,  0,  1, -1, 1, -1, 0, 1]
+
+    def start_game(self): # creates both grids, sets the mines, makes the first move
         self.create_user_grid()
-        self.first_selected_cell_row = np.random.randint(0, 8)
-        self.first_selected_cell_column = np.random.randint(0, 8)
-        self.dx = [-1, -1, -1, 0, 0, 1, 1, 1]
-        self.dy = [-1,  0,  1, -1, 1, -1, 0, 1]
+        first_selected_cell_row = np.random.randint(ROWS)
+        first_selected_cell_column = np.random.randint(COLS)
 
-        print(
-            "Comp chose :",
-            self.first_selected_cell_row,
-            " ",
-            self.first_selected_cell_column,
-        )
         self.create_grid()
-        self.set_mines(
-            firstChosen = (self.first_selected_cell_row, self.first_selected_cell_column)
-        )
-        print("ZA TACAN GRID SHOWGRID")
-        self.show_grid(self.grid)
+        self.set_mines(firstChosen = (first_selected_cell_row, first_selected_cell_column))
 
-        if self.grid[self.first_selected_cell_row][ self.first_selected_cell_column].cell_state > 0:
-            self.user_grid[self.first_selected_cell_row][ self.first_selected_cell_column].cell_state = self.grid[self.first_selected_cell_row][self.first_selected_cell_column].cell_state
-            self.user_grid[self.first_selected_cell_row][ self.first_selected_cell_column].image = self.grid[self.first_selected_cell_row][self.first_selected_cell_column].image
-            self.user_grid[self.first_selected_cell_row][ self.first_selected_cell_column].cell_visability = True
-            self.reveal_safe_cells((self.first_selected_cell_row, self.first_selected_cell_column))
-            self.show_grid(self.user_grid)    
-            print("---------------------------") 
-        if self.grid[self.first_selected_cell_row][ self.first_selected_cell_column].cell_state == 0:
-            self.reveal_safe_cells((self.first_selected_cell_row, self.first_selected_cell_column ))
+        self.reveal_cell(first_selected_cell_row, first_selected_cell_column)
 
-    def reveal_safe_cells(self, chosen):
+    def reveal_safe_cells(self, chosen): # reveals the safe cells using BFS, by assuming the initial cell is zero; flood-fill
         chosen_row, chosen_column = chosen
         queue = Queue()
         queue.enqueue([chosen_row, chosen_column])
-
-        self.user_grid[chosen_row][chosen_column].image = self.grid[chosen_row][chosen_column].image 
-        self.user_grid[chosen_row][chosen_column].cell_state = self.grid[chosen_row][chosen_column].cell_state
-        self.check_for_numbers_in_reveal(chosen_row, chosen_column) 
         
-        # find other safe cells
+        # find other safe cells (0 cells) using BFS
         while queue.isEmpty() == False:
             chosen_row = queue.peek()[0]
             chosen_column = queue.peek()[1]
@@ -53,19 +33,15 @@ class Solver(Board):
             for i in range(8):
                 new_row=chosen_row + self.dy[i]
                 new_col=chosen_column + self.dx[i]  
-
         
                 if (new_row >= 0 and new_row <= 8 and new_col >= 0 and new_col <=8):
                     if (self.grid[new_row][new_col].cell_state == 0 and self.user_grid[new_row][new_col].cell_visability == False):
                         self.reveal_cell(new_row, new_col)
                         queue.enqueue([new_row, new_col])
 
-                        self.check_for_numbers_in_reveal(new_row, new_col) 
-        print("---------------------------")
-        self.show_grid(self.user_grid)    
-        print("---------------------------")                    
+                        self.check_for_numbers_in_reveal(new_row, new_col)                   
 
-    def reveal_cell(self, new_row, new_col): # Changes the cell_state, image and visability
+    def reveal_cell(self, new_row, new_col): # Changes the cell_state, image and visability and reveals blank cells if it is picked
         self.user_grid[new_row][new_col].cell_state = self.grid[new_row][new_col].cell_state
         self.user_grid[new_row][new_col].image = self.grid[new_row ][new_col].image
         self.user_grid[new_row][new_col].cell_visability = True
@@ -73,9 +49,7 @@ class Solver(Board):
         if (self.user_grid[new_row][new_col].cell_state == 0):
             self.reveal_safe_cells((new_row, new_col))
 
-
-
-    def check_for_numbers_in_reveal(self, new_row, new_col):
+    def check_for_numbers_in_reveal(self, new_row, new_col): # makes sure the flood fill goes one cell beyond to reveal the number hints
         if (new_row - 1 >= 0 and self.grid[new_row-1][new_col].cell_state > 0):
             self.reveal_cell(new_row=new_row-1, new_col=new_col)
 
@@ -98,8 +72,6 @@ class Solver(Board):
         if (new_col + 1 < 9 and self.grid[new_row][ new_col + 1].cell_state > 0):
             self.reveal_cell(new_row=new_row, new_col=new_col + 1)
   
-
-
     def constraint_propagation(self, screen):
         cells_to_check = Queue()
         for row in self.user_grid:
