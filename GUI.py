@@ -2,8 +2,6 @@ import pygame
 from Settings import *
 from Board import *
 from Solver import *
-
-
 class Game:
     def __init__(self):
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -49,4 +47,3 @@ while True:
     game.run()
 
 # TODO da nekako ispise ako je win ili lose
-# TODO code cleanup as i write the report

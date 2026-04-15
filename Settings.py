@@ -16,7 +16,7 @@ BGCOLOR = DARKGRAY
 # game settings
 TILESIZE = 52
 ROWS = 9
-COLS = 9  # TODO use these instead of the other option in Board
+COLS = 9
 AMOUNT_MINES = 10
 WIDTH = TILESIZE * ROWS
 HEIGHT = TILESIZE * COLS

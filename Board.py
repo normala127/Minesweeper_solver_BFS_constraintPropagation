@@ -63,10 +63,6 @@ class Board:
                 i += 1
             mines_set += 1
 
-    def show_grid2(self, grid):
-        for row in grid:
-            print(row)
-
     def draw(self, screen):
         for row in self.user_grid:
             for cell in row:

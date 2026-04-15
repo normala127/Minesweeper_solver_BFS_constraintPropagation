@@ -19,4 +19,3 @@ class Cell:
 
 #possible_states = {"Mine": -1, "Safe": 0, "Number": 1, "Not shown": 'N',}
 #cell_hidden = 'N'
-#TODO svugdje gdje se zove cell moras promijenit parametre
