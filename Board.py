@@ -2,8 +2,6 @@ import numpy as np
 from Cell import *
 from Settings import *
 import pygame
-
-
 class Board:
     def __init__(self):
         self.board_surface = pygame.Surface((WIDTH, HEIGHT))
