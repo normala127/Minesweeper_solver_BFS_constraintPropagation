@@ -10,6 +10,8 @@ class Solver(Board):
         self.create_user_grid()
         self.first_selected_cell_row = np.random.randint(0, 8)
         self.first_selected_cell_column = np.random.randint(0, 8)
+        self.dx = [-1, -1, -1, 0, 0, 1, 1, 1]
+        self.dy = [-1,  0,  1, -1, 1, -1, 0, 1]
 
         print(
             "Comp chose :",
@@ -44,16 +46,14 @@ class Solver(Board):
         self.check_for_numbers_in_reveal(chosen_row, chosen_column) 
         
         # find other safe cells
-        dx = [-1, -1, -1, 0, 0, 1, 1, 1]
-        dy = [-1,  0,  1, -1, 1, -1, 0, 1]
 
         while queue.isEmpty() == False:
             chosen_row = queue.peek()[0]
             chosen_column = queue.peek()[1]
             queue.dequeue()
             for i in range(8):
-                new_row=chosen_row + dy[i]
-                new_col=chosen_column + dx[i]  
+                new_row=chosen_row + self.dy[i]
+                new_col=chosen_column + self.dx[i]  
 
         
                 if (new_row >= 0 and new_row <= 8 and new_col >= 0 and new_col <=8):
@@ -107,8 +107,6 @@ class Solver(Board):
                     cells_to_check.enqueue([cell.y//TILESIZE, cell.x//TILESIZE])
 
         # constraint 1
-        dx = [-1, -1, -1, 0, 0, 1, 1, 1]
-        dy = [-1,  0,  1, -1, 1, -1, 0, 1]
         to_be_revealed = []
 
         while cells_to_check.isEmpty() == False:
@@ -122,10 +120,10 @@ class Solver(Board):
             print("Dequeued:", chosen_row," ", chosen_column)
             if self.user_grid[chosen_row][chosen_column].cell_state == 0:
                 to_be_revealed.append((chosen_row, chosen_column))
-                continue
+                self.reveal_safe_cells((chosen_row, chosen_column))
             for i in range(8):
-                new_row=chosen_row + dy[i]
-                new_col=chosen_column + dx[i]  
+                new_row=chosen_row + self.dy[i]
+                new_col=chosen_column + self.dx[i]  
                 
                 if (new_row >= 0 and new_row <= 8 and new_col >= 0 and new_col <=8):
                     if (self.user_grid[new_row][new_col].cell_visability == False):
@@ -138,8 +136,8 @@ class Solver(Board):
                 print("Amount of flags: ", flagged, "cell state: ", self.user_grid[chosen_row][chosen_column].cell_state)
                 # logic that says if the cell's state is the same as the number of flagged cells around it, then other unflagged cells should be revealed
                 for i in range(8):
-                    new_row=chosen_row + dy[i]
-                    new_col=chosen_column + dx[i]
+                    new_row=chosen_row + self.dy[i]
+                    new_col=chosen_column + self.dx[i]
                     if (new_row >= 0 and new_row <= 8 and new_col >= 0 and new_col <=8):
                         if (self.user_grid[new_row][new_col].cell_visability == False and not self.user_grid[new_row][new_col].flagged):
                             self.user_grid[new_row][new_col].cell_visability = True
@@ -158,8 +156,8 @@ class Solver(Board):
                     cell.image = tile_flag
                     # enque the cells that surround the flag
                     for i in range(8):
-                                nr = cell.y // TILESIZE + dy[i]
-                                nc = cell.x // TILESIZE + dx[i]
+                                nr = cell.y // TILESIZE + self.dy[i]
+                                nc = cell.x // TILESIZE + self.dx[i]
                                 print("in touch: ",nr, nc)
                                 if (0 <= nr <= 8 and 0 <= nc <= 8):
                                     if self.user_grid[nr][nc].cell_visability and self.user_grid[nr][nc].cell_state > 0:
@@ -171,9 +169,9 @@ class Solver(Board):
             print(cells_to_check.size())'''
             self.draw(screen)
             pygame.display.update()
-            pygame.time.delay(200)
-        for item in to_be_revealed:
-            self.reveal_safe_cells(item)
+            pygame.time.delay(SPEED)
+        '''for item in to_be_revealed:
+            self.reveal_safe_cells(item)'''
 
     def is_solved(self): # checks if the board has been solved or if solver lost/clicked a mine
         flagged_count = 0
@@ -205,7 +203,7 @@ class Solver(Board):
         self.reveal_cell(random_row, random_column)
         self.draw(screen)
         pygame.display.update()
-        pygame.time.delay(200)   
+        pygame.time.delay(SPEED)   
         if (self.user_grid[random_row][random_column].cell_state == 0):
             self.reveal_safe_cells((random_row, random_column))    
         if (self.grid[random_row][random_column].cell_state == -1):
