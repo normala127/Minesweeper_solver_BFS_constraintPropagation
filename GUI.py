@@ -14,7 +14,6 @@ class Game:
         self.board = Solver()
         self.board.start_game()
         self.board.solve(self.screen)
-        #self.board.constraint_propagation(screen=self.screen)
 
     def run(self):
         self.playing = True

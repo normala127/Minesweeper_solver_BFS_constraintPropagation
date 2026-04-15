@@ -34,7 +34,7 @@ class Solver(Board):
                 new_row=chosen_row + self.dy[i]
                 new_col=chosen_column + self.dx[i]  
         
-                if (new_row >= 0 and new_row <= 8 and new_col >= 0 and new_col <=8):
+                if (self.in_grid_bounds(new_row, new_col)):
                     if (self.grid[new_row][new_col].cell_state == 0 and self.user_grid[new_row][new_col].cell_visability == False):
                         self.reveal_cell(new_row, new_col)
                         queue.enqueue([new_row, new_col])
@@ -72,7 +72,9 @@ class Solver(Board):
         if (new_col + 1 < 9 and self.grid[new_row][ new_col + 1].cell_state > 0):
             self.reveal_cell(new_row=new_row, new_col=new_col + 1)
   
-
+    def in_grid_bounds(self, new_row, new_col): # checks the cell being checked is in the grid bounds
+        return bool(new_row >= 0 and new_row < ROWS and new_col >= 0 and new_col < COLS)
+    
     def constraint_propagation(self, screen):
         cells_to_check = Queue()
         for row in self.user_grid:
@@ -80,63 +82,61 @@ class Solver(Board):
                 if cell.cell_visability and cell.cell_state != 0:
                     cells_to_check.enqueue([cell.y//TILESIZE, cell.x//TILESIZE])
 
-        # constraint 1
-        to_be_revealed = []
-
+        # basic constraints
         while cells_to_check.isEmpty() == False:
-            print("SIZE F Q: ",cells_to_check.size())
             touch = 0
             flagged = 0
             to_flag = []
+
             chosen_row = cells_to_check.peek()[0]
             chosen_column = cells_to_check.peek()[1]
+
             cells_to_check.dequeue()
-            print("Dequeued:", chosen_row," ", chosen_column)
-            if self.user_grid[chosen_row][chosen_column].cell_state == 0:
-                to_be_revealed.append((chosen_row, chosen_column))
+            
+            # if the cell is 0, flood fill
+            if self.user_grid[chosen_row][chosen_column].cell_state == 0: 
                 self.flood_fill_safe_cells((chosen_row, chosen_column))
+            
+            # check how many unrevealed and flagged neighbour cells the cell has
             for i in range(8):
-                new_row=chosen_row + self.dy[i]
-                new_col=chosen_column + self.dx[i]  
+                new_row = chosen_row + self.dy[i]
+                new_col = chosen_column + self.dx[i]  
                 
-                if (new_row >= 0 and new_row <= 8 and new_col >= 0 and new_col <=8):
+                if (self.in_grid_bounds(new_row, new_col)):
                     if (self.user_grid[new_row][new_col].cell_visability == False):
                         to_flag.append(self.user_grid[new_row][new_col])
-                        touch+=1
+                        touch += 1
                     if (self.user_grid[new_row][new_col].flagged):
-                        flagged+=1
+                        flagged += 1
             
-            if flagged == self.user_grid[chosen_row][chosen_column].cell_state and flagged>0: 
-                print("Amount of flags: ", flagged, "cell state: ", self.user_grid[chosen_row][chosen_column].cell_state)
-                # logic that says if the cell's state is the same as the number of flagged cells around it, then other unflagged cells should be revealed
+            if flagged == self.user_grid[chosen_row][chosen_column].cell_state and flagged>0:                 
+                # if the cell's state is the same as the number of flagged cells around it, then other unflagged neighbour cells should be revealed
                 for i in range(8):
                     new_row=chosen_row + self.dy[i]
                     new_col=chosen_column + self.dx[i]
-                    if (new_row >= 0 and new_row <= 8 and new_col >= 0 and new_col <=8):
-                        if (self.user_grid[new_row][new_col].cell_visability == False and not self.user_grid[new_row][new_col].flagged):
+
+                    if (self.in_grid_bounds(new_row, new_col)):
+                        if (not self.user_grid[new_row][new_col].cell_visability and not self.user_grid[new_row][new_col].flagged):
                             self.reveal_cell(new_row,new_col)
                             if (self.user_grid[new_row][new_col].cell_state > 0):
-                                cells_to_check.enqueue([new_row, new_col])
-                                print("Enqueued in flagged: ", new_row, " ", new_col)
+                                cells_to_check.enqueue([new_row, new_col])                               
 
             elif touch == self.user_grid[chosen_row][chosen_column].cell_state and touch>0:
-                # logic that says if the cell is touching the same amount of cells as it's state, then flag those cells it is toucing, it is a mine
-                print("Amount of touches: ", touch, "cell state: ", self.user_grid[chosen_row][chosen_column].cell_state)
+                # if the cell is touching the same amount of cells as it's state, then flag those cells it is touching                
                 for cell in to_flag:                   
                     cell.cell_state = -1
                     cell.flagged = True
                     cell.image = tile_flag
+
                     # enque the cells that surround the flag
                     for i in range(8):
                                 nr = cell.y // TILESIZE + self.dy[i]
                                 nc = cell.x // TILESIZE + self.dx[i]
-                                print("in touch: ",nr, nc)
-                                if (0 <= nr <= 8 and 0 <= nc <= 8):
+                                
+                                if (self.in_grid_bounds(nr, nc)):
                                     if self.user_grid[nr][nc].cell_visability and self.user_grid[nr][nc].cell_state > 0:
                                         cells_to_check.enqueue([nr, nc])
-                                        print("Enqueued in touched: ", nr, " ", nc)
-
-
+                                        
             self.draw(screen)
             pygame.display.update()
             pygame.time.delay(SPEED)
@@ -161,19 +161,21 @@ class Solver(Board):
                 if lost:
                     return
 
-
     def random_guess(self, screen): #defaults to this if constraint prop is not enough
-        print("RANDOMM GUESS TIME")
         valid_candidates=[(r,c) for r in range(ROWS) for c in range (COLS) if not self.user_grid[r][c].cell_visability and not self.user_grid[r][c].flagged]
         if not valid_candidates:
             return False
+        
         random_row, random_column = valid_candidates[np.random.randint(0, len(valid_candidates))]
+
         self.reveal_cell(random_row, random_column)
         self.draw(screen)
         pygame.display.update()
-        pygame.time.delay(SPEED)   
+        pygame.time.delay(SPEED) 
+
         if (self.user_grid[random_row][random_column].cell_state == 0):
-            self.flood_fill_safe_cells((random_row, random_column))    
+            self.flood_fill_safe_cells((random_row, random_column))
+
         if (self.grid[random_row][random_column].cell_state == -1):
             return True
         else:
