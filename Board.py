@@ -11,7 +11,6 @@ class Board:
 
     def create_user_grid(self):
         self.user_grid = [[Cell(col, row, 'N', tile_unknown) for col in range(COLS)] for row in range(ROWS)]
-        self.show_grid(self.user_grid)
 
     def create_grid(self):
         self.grid = [[Cell(col, row, 0, tile_empty) for col in range(COLS)] for row in range(ROWS)]
