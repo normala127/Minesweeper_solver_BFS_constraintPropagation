@@ -20,7 +20,7 @@ class Solver(Board):
 
         self.reveal_cell(first_selected_cell_row, first_selected_cell_column)
 
-    def reveal_safe_cells(self, chosen): # reveals the safe cells using BFS, by assuming the initial cell is zero; flood-fill
+    def flood_fill_safe_cells(self, chosen): # reveals the safe cells using BFS, by assuming the initial cell is zero; flood-fill
         chosen_row, chosen_column = chosen
         queue = Queue()
         queue.enqueue([chosen_row, chosen_column])
@@ -39,7 +39,7 @@ class Solver(Board):
                         self.reveal_cell(new_row, new_col)
                         queue.enqueue([new_row, new_col])
 
-                        self.check_for_numbers_in_reveal(new_row, new_col)                   
+                        self.reveal_hints_flood_fill(new_row, new_col)                   
 
     def reveal_cell(self, new_row, new_col): # Changes the cell_state, image and visability and reveals blank cells if it is picked
         self.user_grid[new_row][new_col].cell_state = self.grid[new_row][new_col].cell_state
@@ -47,9 +47,9 @@ class Solver(Board):
         self.user_grid[new_row][new_col].cell_visability = True
 
         if (self.user_grid[new_row][new_col].cell_state == 0):
-            self.reveal_safe_cells((new_row, new_col))
+            self.flood_fill_safe_cells((new_row, new_col))
 
-    def check_for_numbers_in_reveal(self, new_row, new_col): # makes sure the flood fill goes one cell beyond to reveal the number hints
+    def reveal_hints_flood_fill(self, new_row, new_col): # makes sure the flood fill goes one cell beyond to reveal the number hints
         if (new_row - 1 >= 0 and self.grid[new_row-1][new_col].cell_state > 0):
             self.reveal_cell(new_row=new_row-1, new_col=new_col)
 
@@ -72,6 +72,7 @@ class Solver(Board):
         if (new_col + 1 < 9 and self.grid[new_row][ new_col + 1].cell_state > 0):
             self.reveal_cell(new_row=new_row, new_col=new_col + 1)
   
+
     def constraint_propagation(self, screen):
         cells_to_check = Queue()
         for row in self.user_grid:
@@ -93,7 +94,7 @@ class Solver(Board):
             print("Dequeued:", chosen_row," ", chosen_column)
             if self.user_grid[chosen_row][chosen_column].cell_state == 0:
                 to_be_revealed.append((chosen_row, chosen_column))
-                self.reveal_safe_cells((chosen_row, chosen_column))
+                self.flood_fill_safe_cells((chosen_row, chosen_column))
             for i in range(8):
                 new_row=chosen_row + self.dy[i]
                 new_col=chosen_column + self.dx[i]  
@@ -172,7 +173,7 @@ class Solver(Board):
         pygame.display.update()
         pygame.time.delay(SPEED)   
         if (self.user_grid[random_row][random_column].cell_state == 0):
-            self.reveal_safe_cells((random_row, random_column))    
+            self.flood_fill_safe_cells((random_row, random_column))    
         if (self.grid[random_row][random_column].cell_state == -1):
             return True
         else:
