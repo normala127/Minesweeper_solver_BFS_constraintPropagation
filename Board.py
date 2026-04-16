@@ -6,7 +6,7 @@ class Board:
     def __init__(self):
         self.board_surface = pygame.Surface((WIDTH, HEIGHT))
 
-        self.number_of_mines = 10
+        self.number_of_mines = AMOUNT_MINES
         self.create_grid()
 
     def create_user_grid(self):

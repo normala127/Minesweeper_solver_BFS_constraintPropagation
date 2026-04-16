@@ -18,3 +18,4 @@ class Cell:
             board_surface.blit(tile_unknown, (self.x, self.y))
 
 #possible_states = {"Mine": -1, "Safe": 0, "Number": 1, "Not shown": 'N',}
+#y is the row, x is the column
