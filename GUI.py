@@ -45,5 +45,3 @@ game = Game()
 while True:
     game.new()
     game.run()
-
-# TODO da nekako ispise ako je win ili lose

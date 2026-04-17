@@ -3,7 +3,7 @@ from Queue import *
 from Cell import *
 from Board import *
 import pygame
-#TODO learn to create packages
+
 class Solver(Board):
     # used for checking the cells around the selected cell
     dx = [-1, -1, -1, 0, 0, 1, 1, 1] 
@@ -179,5 +179,3 @@ class Solver(Board):
             return True
         else:
             return False
-
-# TODO subset constraints
