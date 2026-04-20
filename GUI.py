@@ -14,13 +14,8 @@ class Game:
         self.board.solve(self.screen)
 
     def run(self):
-        self.playing = True
-        while self.playing:
-            self.clock.tick(FPS)
-            self.events()
-            self.draw()
-        else:
-            self.end_screen()
+        self.draw()    
+        self.end_screen()
 
     def events(self):
         for event in pygame.event.get():
@@ -34,11 +29,40 @@ class Game:
         pygame.display.flip()
 
     def end_screen(self):
+        pygame.font.init()
+        font = pygame.font.SysFont("Arial", 64, bold=True)
+        small_font = pygame.font.SysFont("Arial", 28)
+
+        if self.board.won:
+            message = "You Won!"
+            color = (0, 200, 0)      
+        else:
+            message = "You Lost!"
+            color = (200, 0, 0)    
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     quit(0)
+                if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
+                    return  
+
+            self.screen.fill(BGCOLOR)
+            self.board.draw(self.screen)  
+            
+            overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+            overlay.fill((0, 0, 0, 150))
+            self.screen.blit(overlay, (0, 0))
+            
+            text = font.render(message, True, color)
+            self.screen.blit(text, text.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 30)))
+            
+            sub = small_font.render("Press any key or click to play again", True, (255, 255, 255))
+            self.screen.blit(sub, sub.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 40)))
+
+            pygame.display.flip()
+            self.clock.tick(FPS)
 
 
 game = Game()

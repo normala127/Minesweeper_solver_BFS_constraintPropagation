@@ -9,6 +9,11 @@ class Solver(Board):
     dx = [-1, -1, -1, 0, 0, 1, 1, 1] 
     dy = [-1,  0,  1, -1, 1, -1, 0, 1]
 
+    def __init__(self):
+        super().__init__()
+        self.lost = False
+        self.won = False
+
     def start_game(self): # creates both grids, sets the mines, makes the first move
         self.create_user_grid()
         first_selected_cell_row = np.random.randint(ROWS)
@@ -117,11 +122,13 @@ class Solver(Board):
                     if (self.in_grid_bounds(new_row, new_col)):
                         if (not self.user_grid[new_row][new_col].cell_visability and not self.user_grid[new_row][new_col].flagged):
                             self.reveal_cell(new_row,new_col)
+                            print("Constraint 1 triggered")
                             if (self.user_grid[new_row][new_col].cell_state > 0):
                                 cells_to_check.enqueue([new_row, new_col])                               
 
             elif touch == self.user_grid[chosen_row][chosen_column].cell_state and touch>0:
-                # if the cell is touching the same amount of cells as it's state, then flag those cells it is touching                
+                # if the cell is touching the same amount of cells as it's state, then flag those cells it is touching       
+                print("Constraint 2 triggered")         
                 for cell in to_flag:                   
                     cell.cell_state = -1
                     cell.flagged = True
@@ -150,21 +157,22 @@ class Solver(Board):
                     return False
         if flagged_count != AMOUNT_MINES:
             return False
+        self.won = True
         return True
 
     def solve(self, screen): # solves the board using constraint prop and if needed random guess
         while not self.is_solved():
             self.constraint_propagation(screen)
             if not self.is_solved():
-                lost = self.random_guess(screen)
-                if lost:
+                self.lost = self.random_guess(screen)
+                if self.lost:
                     return
 
     def random_guess(self, screen): #defaults to this if constraint prop is not enough
         valid_candidates=[(r,c) for r in range(ROWS) for c in range (COLS) if not self.user_grid[r][c].cell_visability and not self.user_grid[r][c].flagged]
         if not valid_candidates:
             return False
-        
+        print("Random guess triggered")
         random_row, random_column = valid_candidates[np.random.randint(0, len(valid_candidates))]
 
         self.reveal_cell(random_row, random_column)
